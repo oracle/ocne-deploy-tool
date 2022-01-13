@@ -1,0 +1,50 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to setup a template in OLVM
+# and create VMs from the template and an OCNE cluster
+# on Oracle Linux 7 or Oracle Linux 8 with either a Kubernetes module
+# or Kubernetes, Helm, Prometheus, Istio and Operator Lifecycle Manager.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+
+# yamllint disable
+---
+
+- import_playbook: download-disk.yml
+- import_playbook: template-create.yml
+- import_playbook: create_vm.yml
+- import_playbook: repo-add.yml
+- import_playbook: operator.yml
+- import_playbook: kube.yml
+- import_playbook: nginx.yml
+- import_playbook: certs-setup.yml
+- import_playbook: certs-setup-restrict-ips.yml
+- import_playbook: agent-start.yml
+- import_playbook: api-server-start.yml
+- import_playbook: kube-reset.yml
+
+# Create an environment
+- import_playbook: environment-create.yml
+
+# Create Kubernetes module with self-signed Certificates and Load Balancer
+- import_playbook: module-kube-create.yml
+
+# Set up kubectl on master nodes
+- import_playbook: kubectl-setup.yml
+
+# Create Helm and Istio modules
+- import_playbook: module-istio-create.yml
+  when:
+  - deploy_istio == true
+
+# Create Helm and OLM modules when OCNE version is at least v1.3.X
+- import_playbook: module-olm-create.yml
+  when:
+  - deploy_olm == true
+  - ocne_version | regex_search("^-1\.[3-4]\.[0-9]$")

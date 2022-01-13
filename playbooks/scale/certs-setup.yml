@@ -1,0 +1,28 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to setup certificates
+# for OCNE API Server and OCNE Agent on new nodes
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+- name: Set up OCNE Certificates for new nodes
+  hosts: ocne_op
+  gather_facts: false
+
+  tasks:
+
+  - name: Create X.509 Certificates and Copy to New Nodes
+    shell: |
+           cd /etc/olcne
+           sudo /etc/olcne/gen-certs-helper.sh  --nodes {{ add_nodes }} --cert-dir /etc/olcne/configs/certificates/ --byo-ca-cert /etc/olcne/configs/certificates/production/ca.cert --byo-ca-key /etc/olcne/configs/certificates/production/ca.key
+           sed -i 's/^USER=opc/USER=root/' /etc/olcne/configs/certificates/olcne-tranfer-certs.sh
+           bash -ex /etc/olcne/configs/certificates/olcne-tranfer-certs.sh

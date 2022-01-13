@@ -1,0 +1,20 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to uninstall all OCNE modules
+# and delete the OCNE environment.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+- import_playbook: module-olm-remove.yml
+- import_playbook: module-istio-remove.yml
+- import_playbook: module-kube-remove.yml
+- import_playbook: environment-remove.yml

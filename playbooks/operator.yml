@@ -1,0 +1,57 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to setup the OCNE Operator node.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+- name: Install OCNE on Operator Node
+  hosts: ocne_op
+  become: yes
+  become_user: root
+  gather_facts: false
+
+  tasks:
+
+  - name: Copy Private Key
+    copy:
+      src: "{{ playbook_dir }}/files/id_rsa"
+      dest: "/root/.ssh/id_rsa"
+      owner: root
+      mode: 0600
+
+  - name: Enable firewalld Service
+    service:
+      name: firewalld
+      enabled: yes
+      state: started
+
+  - name: Open Port 8091
+    firewalld:
+      port: 8091/tcp
+      permanent: yes
+      state: enabled
+
+  - name: Restart firewalld Service
+    service:
+      name: firewalld
+      state: restarted
+
+  - name: Installing the olcne-api-server olcne-utils olcnectl packages
+    shell: |
+           yum install -y olcne-api-server{{ ocne_version }} olcne-utils{{ ocne_version}} olcnectl{{ ocne_version }}
+
+
+  - name: Enable olcne-api-server Service
+    service:
+      name: olcne-api-server
+      enabled: yes
+      state: stopped

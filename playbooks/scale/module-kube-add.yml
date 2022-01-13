@@ -1,0 +1,29 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to update the
+# OCNE kubernetes module with new nodes.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+- name: Add New Master and Worker Nodes to the Cluster
+  hosts: ocne_op
+  gather_facts: false
+
+  tasks:
+
+  - name: Add master and worker nodes to a Kubernetes module
+    command: olcnectl --api-server 127.0.0.1:8091 module update \
+           --environment-name {{ ocne_environment }} \
+           --name {{ ocne_k8s }} \
+           --master-nodes {{ control_nodes }},{{ add_control_nodes }} \
+           --worker-nodes {{ worker_nodes }},{{ add_worker_nodes }} \
+           --force

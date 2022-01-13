@@ -1,0 +1,158 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible global variable file.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+# Variables applicable to all vms
+#
+# OLVM and common VM details !!!Required!!!
+#
+olvm_cluster: <OLVM Cluster name in which the template and VMs will be created>
+olvm_template: <Template Name to be created and used>
+storage_domain: <Storage Domain Name where the template and VMs will be created>
+
+## Specify the logical network !!!Required!!!
+vm_network: <Guest VM's logical network>
+## Example:
+# vm_network: ovirtmgmt
+
+## Specify VNIC Profile of the logical network !!!Required!!!
+vm_network_profile: <VNIC Profile>
+## Example:
+# vm_network_profile: ovirtmgmt
+
+## Set use_dhcp to 'true' if the environment has a DHCP server,
+# else set to 'false' !!!Required!!!
+use_dhcp: false
+
+#
+# Cloud init variables  !!!Required!!!
+#
+vm_dns: <DN_SERVER_IP>
+vm_dns_domain: "search example.com"
+vm_gateway: <GATEWAY_IP>                   # Leave empty if using DHCP
+vm_netmask: <NETMASK>                      # Leave empty if using DHCP
+vm_timezone: <TIMEZONE>
+vm_chrony: "server <NTP_SERVER> iburst"
+
+#
+# Set use_proxy to 'true' if the environment is behind a proxy, else set to 'false' !!!Required!!!
+#
+use_proxy: true
+
+#
+# Proxy details. Leave empty if not using proxy.
+#
+my_https_proxy: "https://<PROXYSERVER>:<PORT>"
+my_http_proxy: "http://<PROXYSERVER>:<PORT>"
+my_no_proxy: "localhost,127.0.0.1,.example.com"
+
+#
+# Template Disk download URL !!!Required!!!
+#
+disk_download_url: "<https://<SERVERNAME>/PATH/TO/DISK>"
+## Example:
+## For OL8
+## disk_download_url: "https://yum.oracle.com/templates/OracleLinux/OL8/u5/x86_64/OL8U5_x86_64-olvm-b107.qcow2"
+## OR
+## For OL7
+## disk_download_url: "https://yum.oracle.com/templates/OracleLinux/OL7/u9/x86_64/OL7U9_x86_64-olvm-b108.qcow2"
+
+#
+# Template Disk storage location !!!Required!!!
+#
+disk_location: "</PATH/TO/DOWNLOADED/QCOW2>"
+## Example:
+## disk_location: "/tmp/OL8U5_x86_64-olvm-b107.qcow2"
+## OR
+## disk_location: "/tmp/OL7U9_x86_64-olvm-b108.qcow2"
+
+#
+# Specify Oracle Linux OS version !!!Required!!!
+#
+ol_version: "ol8"
+## Example:
+## ol_version: "ol8"
+## ol_version: "ol7"
+
+#
+# Container registry path to get the OLCNE component container images !!!Required!!!
+#
+container_registry: myregistry.com/olcne
+## Example:
+## container_registry: container-registry.oracle.com/olcne
+
+# Set to deploy as HA
+ha: true
+
+# Set Kubernetes version to install.
+# Leave undefined/commented out for the default version.
+# kube_version: 1.14.8
+# kube_version: 1.17.4
+# kube_version: 1.18.10
+
+#
+# The virtual IP for an olcne-nginx load balancer !!!Required!!!
+#
+virtual_ip: <VIRTUAL_IP>
+
+#
+# OCNE version to deploy !!!Required!!!
+#
+ocne_version: -X.X.X
+## Example:
+## ocne_version: -1.3.0
+
+# Set to true if OCNE 1.2.2 or later to set up certs for the restricted external IPs Webhook
+restricted_ips: true
+
+# Set the OCNE yum repo of version to install !!!Required!!!
+# For OL8
+ocne_repo: ol8_olcne13
+## For OL7
+## ocne_repo: ol7_olcne13
+
+# Set name for the OLCNE environment !!!Required!!!
+ocne_environment:
+
+# Set name of the OLCNE Kubernetes module !!!Required!!!
+ocne_k8s:
+
+# Options for Modules to Deploy
+deploy_istio: true
+
+# Set this to true only if OLCNE version is v1.3 or higher and you want to install the Operator Lifecycle Manager module.
+deploy_olm: false
+
+# Set name of the OLCNE Helm. Required is deploying Istio or OLM Modules. Leave empty if not creating either of them.
+ocne_helm:
+
+# Set name of the OLCNE Istio module. Leave empty if not creating Istio module.
+ocne_istio:
+
+# Set name of the OLCNE OLM module. Leave empty if not creating OLM module.
+ocne_olm:
+
+#
+# Set the list of control plane and worker nodes
+#
+control_nodes: <CONTROLPLANE_NODE1_IP_OR_FQDN>:8090,<CONTROLPLANE_NODE2_IP_OR_FQDN>:8090,<CONTROLPLANE_NODE3_IP_OR_FQDN>:8090
+worker_nodes: <WORKER_NODE1_IP_OR_FQDN>:8090,<WORKER_NODE2_IP_OR_FQDN>:8090
+all_nodes: <CONTROLPLANE_NODE1_IP_OR_FQDN>,<CONTROLPLANE_NODE2_IP_OR_FQDN>,<CONTROLPLANE_NODE3_IP_OR_FQDN>
+
+# Nodes to add into an existing cluster.
+# add_nodes lists the nodes for certificate generation
+# Leave add_master_nodes or add_worker_nodes defined but empty if you want to scale only one type of node (control-plane or worker only)
+# add_control_nodes: <CONTROLPLANE_NODE4_IP_OR_FQDN>:8090
+# add_worker_nodes: <WORKER_NODE3_IP_OR_FQDN>:8090
+# add_nodes: <CONTROLPLANE_NODE4_IP_OR_FQDN>,<WORKER_NODE3_IP_OR_FQDN>

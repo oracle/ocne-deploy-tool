@@ -1,0 +1,43 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to create a template
+# in OLVM using the downloaded image.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+  - name: Create a template from qcow2 image
+    hosts: olvm
+    become: yes
+    become_method: sudo
+    gather_facts: false
+    vars_files:
+    - password.yml
+
+    vars:
+      engine_fqdn: "{{ olvm_fqdn }}"
+      engine_user: "{{ olvm_user }}"
+      engine_password: "{{ olvm_password }}"
+      engine_cafile: "{{ olvm_cafile | default(omit) }}"
+      insecure: "{{ olvm_insecure | default(true) }}"
+
+      qcow_url: "file://{{ disk_location }}"
+      template_cluster: "{{ olvm_cluster }}"
+      template_name: "{{ olvm_template }}"
+      template_memory: 4GiB
+      template_cpu: 4
+      template_disk_storage: "{{ storage_domain }}"
+      template_seal: true
+      template_disk_interface: virtio_scsi
+      template_type: server
+
+    roles:
+      - ovirt.image-template

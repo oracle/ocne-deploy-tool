@@ -1,0 +1,131 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to create virtual machines
+# in Oracle Linux Virtualization Manager.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+- hosts: olvm
+  become: yes
+  become_method: sudo
+  gather_facts: false
+  vars_files:
+    - password.yml
+
+  tasks:
+
+    - name: Login to OLVM manager
+      ovirt_auth:
+        hostname: "{{ olvm_fqdn }}"
+        username: "{{ olvm_user }}"
+        password: "{{ olvm_password }}"
+        ca_file: "{{ olvm_cafile | default(omit) }}"
+        insecure: "{{ olvm_insecure | default(true) }}"
+      tags:
+        - always
+
+    - name: Create Virtual Machine(s)
+      ovirt_vm:
+        auth: "{{ ovirt_auth }}"
+        cluster: "{{ olvm_cluster | default('Default') }}"
+        template: "{{ olvm_template }}"
+        name: "{{ item }}"
+        state: present
+        memory: "{{ hostvars[item]['vm_ram'] | default('1GiB') }}"
+        high_availability: no
+      loop: "{{ groups['virtualmachines'] }}"
+
+    - name: Configure VNIC for DHCP
+      ovirt_nic:
+        auth: "{{ ovirt_auth }}"
+        state: present
+        vm: "{{ item }}"
+        name: nic1
+        interface: virtio
+        mac_address: "{{ hostvars[item]['ansible_vm_mac'] }}"
+        profile: "{{ vm_network_profile }}"
+        network: "{{ vm_network }}"
+      loop: "{{ groups['virtualmachines'] }}"
+      when:
+      - use_dhcp == true
+
+
+    - name: Configure VNIC for Static IP
+      ovirt_nic:
+        auth: "{{ ovirt_auth }}"
+        state: present
+        vm: "{{ item }}"
+        name: nic1
+        interface: virtio
+        profile: "{{ vm_network_profile }}"
+        network: "{{ vm_network }}"
+      loop: "{{ groups['virtualmachines'] }}"
+      when:
+      - use_dhcp == false
+
+    - name: Configure Virtual Machine with DHCP
+      ovirt_vm:
+        auth: "{{ ovirt_auth }}"
+        name: "{{ item }}"
+        state: running
+        cloud_init:
+          host_name: "{{ hostvars[item]['ansible_host'] }}"
+          user_name: root
+          root_password: "{{ vm_root_passwd }}"
+          dns_servers: "{{ vm_dns }}"
+          nic_name: "{{ vm_nicname | default('eth0') }}"
+          nic_on_boot: true
+          nic_boot_protocol: dhcp
+          timezone: "{{ vm_timezone }}"
+          custom_script: |
+            runcmd:
+              - hostnamectl set-hostname {{ hostvars[item]['ansible_host'] }}
+              - echo {{ vm_chrony }} >> /etc/chrony.conf; systemctl restart chronyd
+              - echo {{ vm_dns_domain }} >> /etc/resolv.conf
+              - echo "{{ lookup('file', 'files/id_rsa.pub') }}" >> /root/.ssh/authorized_keys
+        wait: true
+      loop: "{{ groups['virtualmachines'] }}"
+      when:
+      - use_dhcp == true
+
+    - name: Configure Virtual Machines with Static IP
+      ovirt_vm:
+        auth: "{{ ovirt_auth }}"
+        name: "{{ item }}"
+        state: running
+        cloud_init:
+          host_name: "{{ hostvars[item]['ansible_host'] }}"
+          user_name: root
+          root_password: "{{ vm_root_passwd }}"
+          dns_servers: "{{ vm_dns }}"
+          nic_name: "{{ vm_nicname | default('eth0') }}"
+          nic_on_boot: true
+          nic_boot_protocol: static
+          nic_ip_address: "{{ hostvars[item]['ansible_ssh_host'] }}"
+          nic_gateway: "{{ vm_gateway }}"
+          nic_netmask: "{{ vm_netmask }}"
+          timezone: "{{ vm_timezone }}"
+          custom_script: |
+            runcmd:
+              - hostnamectl set-hostname {{ hostvars[item]['ansible_host'] }}
+              - echo {{ vm_chrony }} >> /etc/chrony.conf; systemctl restart chronyd
+              - echo {{ vm_dns_domain }} >> /etc/resolv.conf
+              - echo "{{ lookup('file', 'files/id_rsa.pub') }}" >> /root/.ssh/authorized_keys
+        wait: true
+      loop: "{{ groups['virtualmachines'] }}"
+      when:
+      - use_dhcp == false
+
+    - name: Cleanup OLVM auth token
+      ovirt_auth:
+        ovirt_auth: "{{ ovirt_auth }}"
+        state: absent

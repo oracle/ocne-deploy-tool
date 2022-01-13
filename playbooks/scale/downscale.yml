@@ -1,0 +1,28 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to scale the cluster down.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+- name: Remove Master and Worker Nodes from the Cluster
+  hosts: ocne_op
+  gather_facts: false
+
+  tasks:
+
+  - name: Remove master and worker nodes from a Kubernetes module
+    command: olcnectl --api-server 127.0.0.1:8091 module update \
+           --environment-name myenvironment \
+           --name mycluster \
+           --master-nodes {{ control_nodes }} \
+           --worker-nodes {{ worker_nodes }} \
+           --force

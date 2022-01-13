@@ -1,0 +1,41 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to download
+# the qcow2 template disk from https://yum.oracle.com
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+- hosts: olvm
+  become: yes
+  gather_facts: false
+  vars:
+    proxy_env:
+      https_proxy: "{{ my_https_proxy }}"
+
+  tasks:
+  - name: Verify wget availability
+    yum:
+      name: wget
+      state: latest
+
+  - name: Download Template Disk (With proxy)
+    shell: |
+           wget -O "{{ disk_location }}" "{{ disk_download_url }}"
+    environment: "{{ proxy_env }}"
+    when:
+    - use_proxy == true
+
+  - name: Download Template Disk (Without proxy)
+    shell: |
+           wget -O "{{ disk_location }}" "{{ disk_download_url }}"
+    when:
+    - use_proxy == false

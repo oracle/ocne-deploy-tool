@@ -1,0 +1,33 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to setup
+# and start OCNE Agent on new nodes.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+- name: Set up OCNE Agent with the Certificates
+  hosts: ocne_new_kube_worker ocne_new_kube_control
+  become: yes
+  gather_facts: false
+
+  tasks:
+
+  - name: Start OCNE Agent with the Certificates
+    shell: |
+           /etc/olcne/bootstrap-olcne.sh \
+           --secret-manager-type file \
+           --olcne-node-cert-path \
+           /etc/olcne/configs/certificates/production/node.cert \
+           --olcne-ca-path /etc/olcne/configs/certificates/production/ca.cert \
+           --olcne-node-key-path \
+           /etc/olcne/configs/certificates/production/node.key \
+           --olcne-component agent

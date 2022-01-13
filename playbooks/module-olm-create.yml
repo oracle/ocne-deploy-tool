@@ -1,0 +1,45 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to create
+# and install OCNE Helm and Operator Lifecyle Manager modules.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+- name: Create and Deploy a Helm and OLM Module
+  hosts: ocne_op
+  gather_facts: false
+
+  tasks:
+
+  - name: Create a Helm  Module
+    command: olcnectl module create \
+            --environment-name {{ ocne_environment }} \
+            --module helm \
+            --name {{ ocne_helm }} \
+            --helm-kubernetes-module {{ ocne_k8s }}
+
+  - name: Deploy the Helm Module
+    command: olcnectl module install \
+            --environment-name {{ ocne_environment }} \
+            --name {{ ocne_helm }}
+
+  - name: Create an OLM Module
+    command: olcnectl module create \
+            --environment-name {{ ocne_environment }} \
+            --module operator-lifecycle-manager \
+            --name {{ ocne_olm }} \
+            --olm-helm-module {{ ocne_helm }}
+
+  - name: Deploy the OLM Module
+    command: olcnectl module install \
+           --environment-name {{  ocne_environment}} \
+           --name {{ ocne_olm }}

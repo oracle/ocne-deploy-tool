@@ -1,0 +1,151 @@
+#!/bin/bash
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Shell script to invoke the OCNE Deploment Tool.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+
+
+### Print Usage and Exit
+usage() {
+echo "${1}"
+echo "Usage: $0 [--help]
+    --help      show this help message.
+
+    The available options are:
+        --deploy                Deploy OCNE Cluster from scratch. Inclusive of all below options.
+        --setup-environment     Setup OLVM Manager Information
+        --add-vminfo            Enter VM details
+        --setup-cluster         Enter OCNE Cluster Information
+        --run-playbook          Execute the Ansible Playbook"
+    exit 2
+}
+
+failwith_error() {
+        echo
+        echo "${1}" 
+        exit 2
+}
+
+## Run the Python wrapper to setup environment details
+setup_environment() {
+        echo "========== Provide Oracle Linux Virtualization Manager(OLVM) details =========="
+        echo 
+        /bin/bash -c "${PWD}"/scripts/environment_setup.py
+        RETCODE=$?
+        if [ $RETCODE == 0 ] 
+        then
+          return $RETCODE
+        else
+          failwith_error "Environment Setup Failed"
+        fi
+}
+
+## Run the Python wrapper to setup generic details for the VMs to be created
+add_vminfo() {
+        echo "========== Provide Common configuration details for Guest VMs =========="
+        echo 
+        /bin/bash -c "${PWD}"/scripts/vm_common.py
+        RETCODE=$?
+        if [ $RETCODE == 0 ] 
+        then
+          return $RETCODE
+        else
+          failwith_error "VM Configuration Collection Failed"
+        fi
+}
+
+## Run the Python wrapper to add OCNE cluster details
+setup_cluster() {
+        echo "========== Provide OCNE cluster setup details =========="
+        echo 
+        /bin/bash -c "${PWD}"/scripts/cluster_setup.py
+        RETCODE=$?
+        if [ $RETCODE == 0 ] 
+        then
+          return $RETCODE
+        else
+          failwith_error "Cluster Setup Failed"
+        fi
+}
+
+## Run the Python wrapper which handles the variable file backup and the actual playbook for deployment
+run_playbook() {
+        echo "========== Beginning the Deployment Process =========="
+        echo 
+        /bin/bash -c "${PWD}"/scripts/deploy_ocne.py
+        RETCODE=$?
+        if [ $RETCODE == 0 ] 
+        then
+          return $RETCODE
+        else
+          failwith_error "Playbook Execution Failed"
+        fi
+}
+
+## Function that encapsulates all the scripts to perform a deplyoment from scratch
+deploy() {
+        setup_environment
+        add_vminfo
+        setup_cluster
+        run_playbook
+        RETCODE=$?
+        if [ $RETCODE == 0 ] 
+        then
+          return $RETCODE
+        else
+          failwith_error "OCNE Cluster Deployment Failed"
+        fi
+}
+
+## Check for valid number of arguments
+arg_check() {
+        if [ "${NR_ARGS}" -gt 1 ]
+        then
+          usage "Only one argument should be provided"
+        elif [ "${NR_ARGS}" -eq 0 ]
+        then
+          usage "At least one argument is required"
+        else
+          return 0
+        fi
+}
+
+NR_ARGS="$#"
+
+echo "==================== OCNE Deployment tool for OLVM ===================="
+
+arg_check
+
+## Switch-Case to call corresponding function
+x="$1"
+shift
+case "${x}" in
+    --deploy) deploy
+              echo "========== Done =========="
+              ;;
+    --setup-cluster) setup_cluster
+                     echo "========== Done =========="
+                     ;;
+    --run-playbook) run_playbook
+                    echo "========== Done =========="
+                    ;;
+    --add-vminfo) add_vminfo
+                  echo "========== Done =========="
+                  ;;
+    --setup-environment) setup_environment
+                         echo "========== Done =========="
+                         ;;
+    --help) usage ;;
+    *) 
+    usage "Invalid option specified '${x}'"
+    ;;
+esac
+
+exit 0

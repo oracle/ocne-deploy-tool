@@ -1,0 +1,89 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Host inventory file for use by Ansible to create VMs in OLVM and execute other playbooks to deploy the OCNE cluster.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+
+#
+# Define group with one host, which is the OLVM host (manager)
+#
+[olvm]
+<OLVM FQDN>
+
+#
+# Define the variables for the OLVM host, admin password will be
+# defined in password.yml
+#
+[olvm:vars]
+olvm_fqdn=<engine_fqdn>
+olvm_user=<username>
+olvm_cafile=</PATH/TO/ca.pem>
+
+## Examples:
+##
+## olvm_fqdn=engine.example.com
+## olvm_user=admin@internal
+## olvm_cafile=/etc/pki/ovirt-engine/ca.pem
+
+#
+# Define the VMs to create as follows when using Static IP. Comment or delete below section if using DHCP.
+# The first column indicates the name of the VM that will be created in OLVM. Below values are only for representation and can be changed.
+#
+[virtualmachines]
+vm01 ansible_host=<VM1_FQDN> ansible_ssh_host=<VM1_IPADDRESS>
+vm02 ansible_host=<VM2_FQDN> ansible_ssh_host=<VM2_IPADDRESS>
+vm03 ansible_host=<VM3_FQDN> ansible_ssh_host=<VM3_IPADDRESS>
+# vm04 ansible_host=<VM4_FQDN> ansible_ssh_host=<VM4_IPADDRESS>
+# vm05 ansible_host=<VM5_FQDN> ansible_ssh_host=<VM5_IPADDRESS>
+
+#
+# Define the VMs to create as follows when using DHCP. Comment or delete below section if using Static IP.
+# The first column indicates the name of the VM that will be created in OLVM. Below values are only for representation and can be changed.
+#
+# [virtualmachines]
+# vm01 ansible_host=<VM1_FQDN> ansible_vm_mac=xx:xx:xx:xx:xx:xx
+# vm02 ansible_host=<VM2_FQDN> ansible_vm_mac=xx:xx:xx:xx:xx:xx
+# vm03 ansible_host=<VM3_FQDN> ansible_vm_mac=xx:xx:xx:xx:xx:xx
+
+#
+
+## More VMs can be added
+
+#
+# Define variables used for VM creation, in this case only vm_ram is used
+# but can be extended with whatever you want.
+#
+# If vm_ram is undefined, the default is 1GiB
+#
+[virtualmachines:vars]
+vm_ram=4096MiB
+
+#
+# Define groups and corresponding VM names for the OLCNE cluster.
+# ocne_op - The OLCNE Operator Node
+# ocne_kube_control - The Kubernetes Control Plane Nodes
+# ocne_kube_worker - The Kubernetes Worker Nodes
+#
+[ocne_op]
+vm01
+
+[ocne_kube_control]
+vm01
+
+# To add more control-plane nodes (scaling)
+# [ocne_new_kube_control]
+# vm04
+
+[ocne_kube_worker]
+vm02
+vm03
+
+# To add more worker nodes (scaling) 
+# [ocne_new_kube_worker]
+# vm05

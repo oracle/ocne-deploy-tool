@@ -1,0 +1,70 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to setup yum package repositories
+# for OCNE and install packages.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+- name: Set up yum repositories
+  hosts: ocne_op ocne_kube_control ocne_kube_worker
+  become: yes
+  become_user: root
+  gather_facts: false
+
+  tasks:
+  - name: Add proxy config to yum.conf
+    lineinfile:
+      path: /etc/yum.conf
+      line: "proxy={{ my_https_proxy }}"
+      state: present
+    when:
+    - use_proxy == true
+
+  - name: Install oracle-olcne-release-el8 RPM
+    shell: |
+           dnf install -y oracle-olcne-release-el8
+    when:
+      - ol_version == "ol8"
+    ignore_errors: yes
+
+  - name: Enable the OL8 repos
+    shell: |
+           yum-config-manager --enable {{ ocne_repo }} ol8_addons ol8_UEKR6 ol8_baseos_latest
+    when:
+      - ol_version == "ol8"
+
+  - name: Disable OL8 development repos
+    shell: |
+           yum-config-manager --disable ol8_developer ol8_developer_EPEL
+    when:
+      - ol_version == "ol8"
+    ignore_errors: yes
+
+  - name: Install oracle-olcne-release-el7 RPM
+    shell: |
+           yum install -y oracle-olcne-release-el7 yum-utils
+    when:
+      - ol_version == "ol7"
+    ignore_errors: yes
+
+  - name: Enable the OL7 repos
+    shell: |
+           yum-config-manager --enable {{ ocne_repo }} ol7_addons ol7_UEKR6 ol7_kvm_utils
+    when:
+      - ol_version == "ol7"
+
+  - name: Disable OL7 development repos
+    shell: |
+           yum-config-manager --disable ol7_developer ol7_developer_EPEL
+    when:
+      - ol_version == "ol7"
+    ignore_errors: yes

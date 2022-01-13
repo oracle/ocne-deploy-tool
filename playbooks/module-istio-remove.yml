@@ -1,0 +1,32 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to uninstall OCNE Istio and Helm modules.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+- name: Remove Istio, Prometheus and Helm from an OLCNE environment
+  hosts: ocne_op
+  gather_facts: false
+
+  tasks:
+
+  - name: Remove Istio Module
+    command: olcnectl module uninstall
+             --environment-name {{ ocne_environment}}
+             --name {{  ocne_istio }}
+    ignore_errors: yes
+
+  - name: Remove Helm Module
+    command: olcnectl module uninstall
+             --environment-name {{ ocne_environment }}
+             --name {{ ocne_helm }}
+    ignore_errors: yes

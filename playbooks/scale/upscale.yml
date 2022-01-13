@@ -1,0 +1,24 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to create new VMs
+# and add to existing OCNE cluster.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+- import_playbook: ../create_vm.yml
+- import_playbook: repo-add-scale.yml
+- import_playbook: kube-scale.yml
+- import_playbook: nginx-scale.yml
+- import_playbook: certs-setup.yml
+- import_playbook: agent-start-scale.yml
+- import_playbook: module-kube-add.yml
+- import_playbook: kubectl-setup-scale.yml

@@ -1,0 +1,26 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to uninstall OCNE kubernetes module.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+- name: Remove Kubernetes Module
+  hosts: ocne_op
+  gather_facts: false
+
+  tasks:
+
+  - name: Remove Kubernetes Module/Cluster
+    command: olcnectl module uninstall
+             --environment-name {{ ocne_environment }}
+             --name {{ ocne_k8s }}
+    ignore_errors: yes

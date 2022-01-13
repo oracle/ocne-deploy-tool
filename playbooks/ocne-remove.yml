@@ -1,0 +1,48 @@
+#
+# OCNE Deployment Tool
+#
+# Copyright (c) 2020,2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at
+# https://oss.oracle.com/licenses/upl.
+#
+# Description: Ansible playbook to uninstall OCNE rpms
+# and delete all related files/directories.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# yamllint disable
+
+---
+
+- name: Clean up and Remove an OCNE RPMs
+  hosts: ocne_op,ocne_kube_control,ocne_kube_worker
+  become: yes
+  gather_facts: false
+
+  tasks:
+
+  - name: Remove OCNE RPMs
+    yum:
+      name: ['kubeadm', 'kubectl', 'kubelet', 'olcnectl', 'olcne-api-server', 'olcne-utils', 'olcne-agent', 'crio', 'cri-tools', 'olcne-nginx', 'keepalived', 'istio', 'olcne-istio-chart', 'helm', 'conmon', 'kata-image', 'kata-runtime', 'kata-proxy', 'kata-shim', 'kata-ksm-throttler', 'kernel-uek-container', 'nginx', 'etcd', 'olcne-prometheus-chart', 'olcne-selinux', 'runc']
+      state: removed
+    ignore_errors: yes
+
+
+  - name: Force removal of RPMs
+    shell: |
+           yum remove -y kubeadm kubectl kubelet olcnectl olcne-api-server olcne-utils olcne-agent crio cri-tools olcne-nginx keepalived istio olcne-istio-chart helm conmon kata-image kata-runtime kernel-uek-container nginx etcd olcne-prometheus-chart olcne-selinux runc
+
+  - name: Remove /etc/olcne directory
+    file:
+      path: /etc/olcne
+      state: absent
+
+  - name: Remove /var/olcne directory
+    file:
+      path: /var/olcne
+      state: absent
+
+  - name: Remove /root/.olcne directory
+    file:
+      path: /root/.olcne
+      state: absent
