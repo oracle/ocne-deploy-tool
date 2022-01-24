@@ -53,7 +53,7 @@ def setocneconfig(nr_control_nodes,nr_worker_nodes,vm_ram,use_dhcp):
             vm_name = raw_input("Enter the Name of Control Plane Node:")
             vm_fqdn = raw_input("Enter the FQDN of Control Plane Node:")
             vm_ipaddr = raw_input("Enter the IP Address of Control Plane Node:")
-            os.system('echo "%s ansible_host=%s ansible_ssh_host=%s" >> %s/hosts.ini' % (vm_name, vm_fqdn, vm_ipaddr, currentdir))
+            os.system('echo "%s ansible_host=%s ansible_ssh_host=%s ansible_user=root" >> %s/hosts.ini' % (vm_name, vm_fqdn, vm_ipaddr, currentdir))
             controlplanenodes.append(vm_name)
             controlplanefqdn.append(vm_fqdn)
         for j in range(int(nr_worker_nodes)):
@@ -62,7 +62,7 @@ def setocneconfig(nr_control_nodes,nr_worker_nodes,vm_ram,use_dhcp):
             vm_name = raw_input("Enter the Name of Worker Node:")
             vm_fqdn = raw_input("Enter the FQDN of Worker Node:")
             vm_ipaddr = raw_input("Enter the IP Address of Worker Node:")
-            os.system('echo "%s ansible_host=%s ansible_ssh_host=%s" >> %s/hosts.ini' % (vm_name, vm_fqdn, vm_ipaddr, currentdir))
+            os.system('echo "%s ansible_host=%s ansible_ssh_host=%s ansible_user=root" >> %s/hosts.ini' % (vm_name, vm_fqdn, vm_ipaddr, currentdir))
             workernodes.append(vm_name)
             workernodefqdn.append(vm_fqdn)
 
@@ -74,7 +74,7 @@ def setocneconfig(nr_control_nodes,nr_worker_nodes,vm_ram,use_dhcp):
             vm_name = raw_input("Enter the Name of Control Plane Node:")
             vm_fqdn = raw_input("Enter the FQDN of Control Plane Node:")
             vm_mac = raw_input("Enter the MAC Address of Control Plane Node:")
-            os.system('echo "%s ansible_host=%s ansible_vm_mac=%s" >> %s/hosts.ini' % (vm_name, vm_fqdn, vm_mac, currentdir))
+            os.system('echo "%s ansible_host=%s ansible_vm_mac=%s ansible_user=root" >> %s/hosts.ini' % (vm_name, vm_fqdn, vm_mac, currentdir))
             controlplanenodes.append(vm_name)
             controlplanefqdn.append(vm_fqdn)
         for j in range(int(nr_worker_nodes)):
@@ -83,7 +83,7 @@ def setocneconfig(nr_control_nodes,nr_worker_nodes,vm_ram,use_dhcp):
             vm_name = raw_input("Enter the Name of Worker Node:")
             vm_fqdn = raw_input("Enter the FQDN of Worker Node:")
             vm_mac = raw_input("Enter the MAC Address of Worker Node:")
-            os.system('echo "%s ansible_host=%s ansible_vm_mac=%s" >> %s/hosts.ini' % (vm_name, vm_fqdn, vm_mac, currentdir))
+            os.system('echo "%s ansible_host=%s ansible_vm_mac=%s ansible_user=root" >> %s/hosts.ini' % (vm_name, vm_fqdn, vm_mac, currentdir))
             workernodes.append(vm_name)
             workernodefqdn.append(vm_fqdn)
 

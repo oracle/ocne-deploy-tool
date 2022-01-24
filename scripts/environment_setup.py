@@ -49,7 +49,7 @@ def proxyconf(currentdir):
 ## Function to add OLVM FQDN, CA Certificate file location and user
 
 def hosts(currentdir,olvm_fqdn,olvm_cafile,olvm_user):
-    os.system('echo "[olvm]" > "%s"/hosts.ini; echo "%s" >> "%s"/hosts.ini; echo " " >> "%s"/hosts.ini' % (currentdir, olvm_fqdn, currentdir, currentdir))
+    os.system('echo "[olvm]" > "%s"/hosts.ini; echo "%s ansible_user=root" >> "%s"/hosts.ini; echo " " >> "%s"/hosts.ini' % (currentdir, olvm_fqdn, currentdir, currentdir))
     os.system('echo "[olvm:vars]" >> "%s"/hosts.ini; echo "olvm_fqdn=%s" >> "%s"/hosts.ini; echo "olvm_user=%s" >> "%s"/hosts.ini; echo "olvm_cafile=%s" >> "%s"/hosts.ini;  echo " " >> "%s"/hosts.ini' % (currentdir, olvm_fqdn, currentdir, olvm_user, currentdir, olvm_cafile, currentdir, currentdir))
 
 ## Function to get password to setup for the VMs and store in to password.yml
