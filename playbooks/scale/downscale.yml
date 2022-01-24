@@ -21,8 +21,8 @@
 
   - name: Remove master and worker nodes from a Kubernetes module
     command: olcnectl --api-server 127.0.0.1:8091 module update \
-           --environment-name myenvironment \
-           --name mycluster \
+           --environment-name {{ ocne_environment }} \
+           --name {{ ocne_k8s }} \
            --master-nodes {{ control_nodes }} \
            --worker-nodes {{ worker_nodes }} \
            --force
