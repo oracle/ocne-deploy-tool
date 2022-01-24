@@ -60,6 +60,12 @@ Edit /etc/ansible/ansible.cfg and set "host_key_checking" to "False"
 
 `host_key_checking = False`
 
+## Run as root user
+
+This tool has to be run either using the root user
+OR the non-root user should have passwordless ssh access
+to the root user.
+
 ## Running the Ansible Playbooks
 
 ## Kubernetes Deployment

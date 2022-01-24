@@ -35,6 +35,10 @@ and the public key "id_rsa.pub" to
 
 2] This tool has to be run from the OLVM Server itself.
 
+3] This tool has to be run either using the root user
+OR the non-root user should have passwordless ssh access
+to the root user.
+
 ## Script Usage
 
 <!-- markdownlint-disable MD040 -->
